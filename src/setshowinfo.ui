@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>362</width>
-    <height>502</height>
+    <height>309</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,14 +19,11 @@
      <property name="title">
       <string>字体设置</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="verticalSpacing">
-       <number>15</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QRadioButton" name="but_time">
+         <widget class="QCheckBox" name="check_time">
           <property name="text">
            <string>时间</string>
           </property>
@@ -36,7 +33,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="but_date">
+         <widget class="QCheckBox" name="check_date">
           <property name="text">
            <string>日期</string>
           </property>
@@ -44,39 +41,20 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <layout class="QVBoxLayout" name="verticalLayout_3">
-          <item>
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>字体</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QFontComboBox" name="fontComboBox"/>
-          </item>
-         </layout>
-        </item>
-        <item row="0" column="1">
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>大小</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="comboBox_size"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
+      <item row="1" column="0">
+       <widget class="QFontComboBox" name="fontComboBox"/>
       </item>
-      <item row="2" column="0">
+      <item row="1" column="1">
+       <widget class="QComboBox" name="comboBox_size"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="but_fontColor">
+        <property name="text">
+         <string>颜色</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QLabel" name="label_2">
@@ -102,18 +80,8 @@
      <property name="title">
       <string>背景图片设置</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="2">
-       <widget class="QPushButton" name="but_open">
-        <property name="text">
-         <string>选择自定义图片</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0" colspan="3">
-       <widget class="QLineEdit" name="lineEdit_path"/>
-      </item>
-      <item row="0" column="0" colspan="2">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
        <widget class="QComboBox" name="comboBox">
         <item>
          <property name="text">
@@ -132,107 +100,27 @@
         </item>
        </widget>
       </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_3">
-     <property name="title">
-      <string>颜色设置</string>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="but_font">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="but_open">
         <property name="text">
-         <string>字体颜色</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
+         <string>选择自定义图片</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QRadioButton" name="but_bg">
+      <item row="0" column="2">
+       <widget class="QPushButton" name="but_bgColor">
         <property name="text">
          <string>背景颜色</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <property name="horizontalSpacing">
-         <number>10</number>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>R</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QSlider" name="horizontalSlider_R">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="4">
-         <widget class="QLabel" name="label_color">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_6">
-          <property name="text">
-           <string>G</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QSlider" name="horizontalSlider_G">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>B</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSlider" name="horizontalSlider_B">
-          <property name="maximum">
-           <number>255</number>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="0" colspan="3">
+       <widget class="QLineEdit" name="lineEdit_path"/>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="2" column="0">
     <widget class="QGroupBox" name="groupBox_4">
      <property name="title">
       <string>显示格式</string>

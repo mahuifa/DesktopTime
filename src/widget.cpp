@@ -6,7 +6,9 @@
 #include <QMenu>
 #include <qdebug.h>
 #include <QStyle>
+#include <QDir>
 #include "head.h"
+
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -15,10 +17,12 @@ Widget::Widget(QWidget *parent)
     ui->setupUi(this);
 
     init();
+    initConfig();
 }
 
 Widget::~Widget()
 {
+    Config::write(m_configData);
     if(m_setShowInfo)
     {
         m_setShowInfo->close();
@@ -33,19 +37,26 @@ Widget::~Widget()
  */
 void Widget::init()
 {
-    m_timeStyle = "hh:mm:ss";
-    m_dateStyle = "yyyy年MM月dd日 dddd";
 
+    m_configData.colorTime = Qt::black;
+    m_configData.colorDate = Qt::black;
+    m_configData.colorBg = this->palette().background().color();
+    m_configData.fontTime = ui->label_time->font();
+    m_configData.fontDate = ui->label_Date->font();
+    m_configData.strTimeStyle = "hh:mm:ss";
+    m_configData.strDateStyle = "yyyy年MM月dd日 dddd";
+
+    this->setMouseTracking(true);                     // 开启鼠标移动监测
+    ui->widget_bg->setMouseTracking(true);
     this->setWindowFlags(Qt::FramelessWindowHint);    // 取消标题栏
     this->showFullScreen();                           // 最大化显示
+
     m_setShowInfo = new SetShowInfo();
     connect(m_setShowInfo, &SetShowInfo::newFont, this, &Widget::on_newFont);
     connect(m_setShowInfo, &SetShowInfo::newColor, this, &Widget::on_newColor);
-    connect(m_setShowInfo, &SetShowInfo::newSpace, ui->verticalLayout, &QVBoxLayout::setSpacing);
-    connect(m_setShowInfo, &SetShowInfo::newBgColor, this, &Widget::on_newBgColor);
+    connect(m_setShowInfo, &SetShowInfo::newSpace, this, &Widget::on_newSpace);
     connect(m_setShowInfo, &SetShowInfo::newBgImage, this, &Widget::on_newBgImage);
-    connect(m_setShowInfo, &SetShowInfo::newTimeStyle, this, &Widget::on_newTimeStyle);
-    connect(m_setShowInfo, &SetShowInfo::newDateStyle, this, &Widget::on_newDateStyle);
+    connect(m_setShowInfo, &SetShowInfo::newStyle, this, &Widget::on_newStyle);
 
     ui->but_set->setToolButtonStyle( Qt::ToolButtonTextUnderIcon);
     ui->but_set->setPopupMode(QToolButton::InstantPopup);
@@ -62,16 +73,53 @@ void Widget::init()
     ui->but_set->setMenu(menu);
 
     connect(&m_timer, &QTimer::timeout, this, &Widget::on_timeout);
+    connect(&m_timerMouse, &QTimer::timeout, this, &Widget::on_mouseTimeout);
     m_timer.start(1000);
+    m_timerMouse.setInterval(3000);
 
-    ui->label_time->setText(QDateTime::currentDateTime().toString(m_timeStyle));
-    ui->label_Date->setText(QDateTime::currentDateTime().toString(m_dateStyle));
+    ui->label_time->setText(QDateTime::currentDateTime().toString(m_configData.strTimeStyle));
+    ui->label_Date->setText(QDateTime::currentDateTime().toString(m_configData.strDateStyle));
+
+}
+
+void Widget::initConfig()
+{
+    if(!QFile::exists(Config::m_strConfigPath))
+    {
+        Config::write(m_configData);
+    }
+    else
+    {
+        m_configData = Config::read();
+        on_newFont(m_configData.fontTime, SetShowInfo::Time);
+        on_newFont(m_configData.fontDate, SetShowInfo::Date);
+        on_newColor(m_configData.colorTime, SetShowInfo::Time);
+        on_newColor(m_configData.colorDate, SetShowInfo::Date);
+        if(m_configData.strBgImage.isEmpty())
+        {
+            on_newColor(m_configData.colorBg, SetShowInfo::Background);
+        }
+        else
+        {
+            on_newBgImage(m_configData.strBgImage);
+        }
+
+    }
 }
 
 void Widget::on_timeout()
 {
-    ui->label_time->setText(QDateTime::currentDateTime().toString(m_timeStyle));
-    ui->label_Date->setText(QDateTime::currentDateTime().toString(m_dateStyle));
+    ui->label_time->setText(QDateTime::currentDateTime().toString(m_configData.strTimeStyle));
+    ui->label_Date->setText(QDateTime::currentDateTime().toString(m_configData.strDateStyle));
+}
+
+/**
+ * @brief 鼠标3秒没移动则隐藏
+ */
+void Widget::on_mouseTimeout()
+{
+    m_timerMouse.stop();
+    this->setCursor(Qt::BlankCursor);
 }
 
 void Widget::on_setShowInfo()
@@ -80,48 +128,106 @@ void Widget::on_setShowInfo()
     m_setShowInfo->setFont(ui->label_time->font(), ui->label_Date->font());
 }
 
-void Widget::on_newFont(QFont time, QFont date)
+/**
+ * @brief         设置字体
+ * @param font
+ * @param type
+ */
+void Widget::on_newFont(QFont font, SetShowInfo::SetType type)
 {
-    ui->label_time->setFont(time);
-    ui->label_Date->setFont(date);
+    if(SetShowInfo::Time == type)
+    {
+        ui->label_time->setFont(font);
+    }
+    else if(SetShowInfo::Date == type)
+    {
+        ui->label_Date->setFont(font);
+    }
+    else
+    {
+        ui->label_time->setFont(font);
+        ui->label_Date->setFont(font);
+    }
 }
 
-void Widget::on_newColor(QColor time, QColor date)
+void Widget::on_newColor(QColor color, SetShowInfo::SetType type)
 {
-    ui->label_time->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                  .arg(time.red())
-                                  .arg(time.green())
-                                  .arg(time.blue()));
-    ui->label_Date->setStyleSheet(QString("color: rgb(%1, %2, %3);")
-                                  .arg(date.red())
-                                  .arg(date.green())
-                                  .arg(date.blue()));
-}
-
-void Widget::on_newBgColor(QColor color)
-{
-    ui->widget_bg->setStyleSheet("");
-    ui->widget_bg->setStyleSheet(QString("#widget_bg{background-color: rgba(%1, %2, %3, %4);}")
-                                 .arg(color.red())
-                                 .arg(color.green())
-                                 .arg(color.blue())
-                                 .arg(color.alpha()));
+    QString str = QString("color: rgb(%1, %2, %3);")
+            .arg(color.red())
+            .arg(color.green())
+            .arg(color.blue());
+    if(SetShowInfo::Time == type)
+    {
+        m_configData.colorTime = color;
+        ui->label_time->setStyleSheet(str);
+    }
+    else if(SetShowInfo::Date == type)
+    {
+        m_configData.colorDate = color;
+        ui->label_Date->setStyleSheet(str);
+    }
+    else if(SetShowInfo::AllFont == type)
+    {
+        m_configData.colorTime = color;
+        m_configData.colorDate = color;
+        ui->label_time->setStyleSheet(str);
+        ui->label_Date->setStyleSheet(str);
+    }
+    else
+    {
+        str = QString("#widget_bg{background-color: rgb(%1, %2, %3);}")
+                .arg(color.red())
+                .arg(color.green())
+                .arg(color.blue());
+        m_configData.colorBg = color;
+        ui->widget_bg->setStyleSheet(str);
+        m_configData.strBgImage.clear();
+    }
 }
 
 void Widget::on_newBgImage(QString path)
 {
+    if(!QFile::exists(path))
+    {
+        return;
+    }
     ui->widget_bg->setStyleSheet("");
     ui->widget_bg->setStyleSheet(QString("#widget_bg{border-image: url(%1);}").arg(path));
     ui->widget_bg->style()->polish(ui->widget_bg);
+    m_configData.strBgImage = path;
 }
 
-void Widget::on_newTimeStyle(QString style)
+void Widget::on_newStyle(QString style, SetShowInfo::SetType type)
 {
-    m_timeStyle = style;
+    if(SetShowInfo::Time == type)
+    {
+        m_configData.strTimeStyle = style;
+    }
+    else if(SetShowInfo::Date == type)
+    {
+        m_configData.strDateStyle = style;
+    }
+    else
+    {
+        m_configData.strTimeStyle = style;
+        m_configData.strDateStyle = style;
+    }
 }
 
-void Widget::on_newDateStyle(QString style)
+void Widget::on_newSpace(int value)
 {
-    m_dateStyle = style;
+    m_configData.space = value;
+    ui->verticalLayout->setSpacing(value);
+}
+
+/**
+ * @brief        鼠标移动则显示光标
+ * @param event
+ */
+void Widget::mouseMoveEvent(QMouseEvent *event)
+{
+    QWidget::mouseMoveEvent(event);
+    this->setCursor(Qt::ArrowCursor);
+    m_timerMouse.start();
 }
 

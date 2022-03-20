@@ -4,7 +4,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
 
-VERSION = 1.0.0
+VERSION = 1.0.1
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 DESTDIR = $$PWD/../bin
 
@@ -13,11 +13,13 @@ DESTDIR = $$PWD/../bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    config.cpp \
     main.cpp \
     setshowinfo.cpp \
     widget.cpp
 
 HEADERS += \
+    config.h \
     head.h \
     setshowinfo.h \
     widget.h
